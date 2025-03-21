@@ -1,11 +1,11 @@
-import { listData } from "../../lib/dummydata";
 import "./listPage.scss";
 import Filter from "../../components/filter/Filter"
 import Card from "../../components/card/Card"
 import Map from "../../components/map/Map";
+import { useLoaderData } from "react-router-dom";
 
 function ListPage() {
-  const data = listData;
+  const data = useLoaderData();
 
   return <div className="listPage">
     <div className="listContainer">
