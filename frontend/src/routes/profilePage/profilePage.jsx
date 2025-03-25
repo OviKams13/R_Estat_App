@@ -2,13 +2,14 @@ import Chat from "../../components/chat/Chat";
 import List from "../../components/list/List";
 import "./profilePage.scss";
 import apiRequest from "../../lib/apiRequest";
-import { useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 
 
 function ProfilePage() {
+  const data = useLoaderData();
 
   const { updateUser, currentUser } = useContext(AuthContext);
 
@@ -51,11 +52,11 @@ function ProfilePage() {
                           <button>Create New Post</button>
                         </Link>
           </div>
-          <List />
+          <List posts={data.userPosts} />
           <div className="title">
             <h1>Saved List</h1>
           </div>
-          <List />
+          <List posts={data.savedPosts} />
         </div>
       </div>
       <div className="chatContainer">
