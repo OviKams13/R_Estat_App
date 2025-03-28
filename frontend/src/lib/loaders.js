@@ -13,5 +13,9 @@ export const listPageLoader = async ({ request, params }) => {
 
 export const profilePageLoader = async () => {
   const res = await apiRequest("/users/profilePosts");
-  return res.data;
+  const reschat = await apiRequest("/chats");
+  return {
+    posts: res.data,
+    chats: reschat.data
+  };
 };

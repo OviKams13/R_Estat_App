@@ -9,11 +9,12 @@ import { Link } from "react-router-dom";
 
 
 function ProfilePage() {
-  const data = useLoaderData();
+  const { posts, chats } = useLoaderData();
 
   const { updateUser, currentUser } = useContext(AuthContext);
 
   const navigate = useNavigate();
+
   const handleLogout = async () => {
     try {
       await apiRequest.post("/auth/logout");
@@ -52,16 +53,16 @@ function ProfilePage() {
                           <button>Create New Post</button>
                         </Link>
           </div>
-          <List posts={data.userPosts} />
+          <List posts={posts.userPosts} />
           <div className="title">
             <h1>Saved List</h1>
           </div>
-          <List posts={data.savedPosts} />
+          <List posts={posts.savedPosts} />
         </div>
       </div>
       <div className="chatContainer">
         <div className="wrapper">
-          <Chat/>
+          <Chat chats={chats}/>
         </div>
       </div>
     </div>
