@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import "./chat.scss";
 import { AuthContext } from "../../context/AuthContext";
 import apiRequest from "../../lib/apiRequest";
@@ -9,6 +9,12 @@ function Chat({ chats }) {
   const [chat, setChat] = useState(null);
   const { currentUser } = useContext(AuthContext);
   const { socket } = useContext(SocketContext);
+
+  const messageEndRef = useRef();
+  
+  useEffect(() => {
+      messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chat]);
 
   const handleOpenChat = async (id, receiver) => {
     try {
@@ -30,19 +36,39 @@ function Chat({ chats }) {
       const res = await apiRequest.post("/messages/" + chat.id, { text });
       setChat((prev) => ({ ...prev, messages: [...prev.messages, res.data] }));
       e.target.reset();
+      socket.emit("sendMessage", {
+        receiverId: chat.receiver.id,
+        data: res.data,
+      });
     } catch (err) {
       console.log(err);
     }
   };
-  
-  const testSocket = () => {
-    socket.emit("test", "Hi from client!");
-  };
-  
+
+  useEffect(() => {
+    const read = async () => {
+      try {
+        await apiRequest.put("/chats/read/" + chat.id);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (chat && socket) {
+      socket.on("getMessage", (data) => {
+        if (chat.id === data.chatId) {
+          setChat((prev) => ({ ...prev, messages: [...prev.messages, data] }));
+          read();
+        }
+      });
+    }
+    return () => {
+      socket.off("getMessage");
+    };
+  }, [socket, chat]);
 
   return (
     <div className="chat">
-      <button onClick={testSocket}>Send Test</button>
       <div className="messages">
         <h1>Messages</h1>
         {chats?.map((c) => (
@@ -92,6 +118,7 @@ function Chat({ chats }) {
                 <span>{format(message.createdAt)}</span>
               </div>
             ))}
+            <div ref={messageEndRef}></div>
           </div>
           <form onSubmit={handleSubmit} className="bottom">
             <textarea name="text"></textarea>
