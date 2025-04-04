@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiRequest = axios.create({
-  baseURL: "https://estat-iota.vercel.app/",
+  baseURL: "http://localhost:8800/api",
   withCredentials: true,
 });
 
