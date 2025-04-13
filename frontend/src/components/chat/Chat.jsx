@@ -85,7 +85,7 @@ function Chat({ chats }) {
               backgroundColor:
                 c.seenBy.includes(currentUser.id) || chat?.id === c.id
                   ? "white"
-                  : "#fecd514e",
+                  : "#2fd1ee",
             }}
             onClick={() => handleOpenChat(c.id, c.receiver)}
           >
