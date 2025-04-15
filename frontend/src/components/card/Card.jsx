@@ -5,7 +5,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import apiRequest from "../../lib/apiRequest";
 
-function Card({ item }) {
+function Card({ item, handleOpenChat, from }) {
   const [saved, setSaved] = useState(item.isSaved);
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -24,6 +24,19 @@ function Card({ item }) {
     } catch (err) {
       console.log(err);
       setSaved((prev) => !prev);
+    }
+  };
+
+  const handleChatClick = async () => {
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
+
+    await handleOpenChat(item.userId);
+
+    if (from !== "profile") {
+      navigate("/profile"); // redirection seulement si on n'est pas déjà sur profile
     }
   };
 
@@ -58,7 +71,7 @@ function Card({ item }) {
               }}>
               <img src="/save.png" alt="" />
             </div>
-            <div className="icon">
+            <div className="icon" onClick={handleChatClick}>
               <img src="/chat.png" alt="" />
             </div>
           </div>
