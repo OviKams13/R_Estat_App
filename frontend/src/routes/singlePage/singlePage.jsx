@@ -13,6 +13,24 @@ function SinglePage() {
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const [chat, setChat] = useState(null);
+
+  const handleSendMessage = async (receiverId) => {
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
+  
+    try {
+      const res = await apiRequest.post("/chats", { receiverId });
+      setChat(res.data);
+      navigate("/profile"); // redirection après création du chat
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  
+
   const handleSave = async () => {
     // if not logged in, redirect to login
     if (!currentUser) {
@@ -140,10 +158,11 @@ function SinglePage() {
             <Map items={[post]} />
           </div>
           <div className="buttons">
-            <button>
-              <img src="/chat.png" alt="" />
-              Send a Message
-            </button>
+          <button onClick={() => handleSendMessage(post.userId)}>
+  <img src="/chat.png" alt="" />
+  Send a Message
+</button>
+
             <button
               onClick={handleSave}
               style={{
