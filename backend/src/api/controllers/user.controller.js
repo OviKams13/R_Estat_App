@@ -1,27 +1,35 @@
-import prisma from "../lib/prisma.js";
+import prisma from "../../config/prismaConnexion.js";
 import bcrypt from "bcrypt";
+import { getUsersValidation } from "../validations/user.validation.js";
+import { getUsersService } from "../services/user.service.js";
 
 export const getUsers = async (req, res) => {
+  // Validation
+  const { error } = getUsersValidation(req);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
   try {
-    const users = await prisma.user.findMany();
+    const users = await getUsersService();
     res.status(200).json(users);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Failed to get users!" });
   }
 };
 
 export const getUser = async (req, res) => {
-    const id = req.params.id;
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id },
-      });
-      res.status(200).json(user);
-    } catch (err) {
-      console.log(err);
-      res.status(500).json({ message: "Failed to get user!" });
-    }
+  const id = req.params.id;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+    res.status(200).json(user);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to get user!" });
+  }
 };
 
 export const updateUser = async (req, res) => {

@@ -2,12 +2,11 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import cors from "cors";
-import authRoute from "./routes/auth.route.js";
-import testRoute from "./routes/test.route.js";
-import userRoute from "./routes/user.route.js";
-import postRoute from "./routes/post.route.js";
-import chatRoute from "./routes/chat.route.js";
-import messageRoute from "./routes/message.route.js";
+import authRoute from "./api/routes/auth.route.js";
+import userRoute from "./api/routes/user.route.js";
+import postRoute from "./api/routes/post.route.js";
+import chatRoute from "./api/routes/chat.route.js";
+import messageRoute from "./api/routes/message.route.js";
 
 const app = express();
 
