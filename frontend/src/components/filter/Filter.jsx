@@ -21,7 +21,12 @@ function Filter() {
   };
 
   const handleFilter = () => {
-    setSearchParams(query);
+    const cleaned = Object.fromEntries(
+      Object.entries(query).filter(
+        ([, v]) => v !== "" && v !== null && v !== undefined
+      )
+    );
+    setSearchParams(cleaned);
   };
 
   return (

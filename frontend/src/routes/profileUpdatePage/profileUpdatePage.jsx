@@ -15,21 +15,25 @@ function ProfileUpdatePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-
     const { username, email, password } = Object.fromEntries(formData);
 
+    const payload = {
+      username,
+      email,
+      avatar: avatar[0],
+    };
+
+    if (password) {
+      payload.password = password;
+    }
+
     try {
-      const res = await apiRequest.put(`/users/${currentUser.id}`, {
-        username,
-        email,
-        password,
-        avatar:avatar[0]
-      });
+      const res = await apiRequest.put(`/users/${currentUser.id}`, payload);
       updateUser(res.data);
       navigate("/profile");
     } catch (err) {
       console.log(err);
-      setError(err.response.data.message);
+      setError(err.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -65,7 +69,11 @@ function ProfileUpdatePage() {
         </form>
       </div>
       <div className="sideContainer">
-        <img src={avatar[0] || currentUser.avatar || "/noavatar.jpg"} alt="" className="avatar" />
+        <img
+          src={avatar[0] || currentUser.avatar || "/noavatar.jpg"}
+          alt=""
+          className="avatar"
+        />
         <UploadWidget
           uwConfig={{
             cloudName: "lamadev",

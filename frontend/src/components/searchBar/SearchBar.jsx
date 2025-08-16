@@ -8,8 +8,8 @@ function SearchBar() {
   const [query, setQuery] = useState({
     type: "buy",
     city: "",
-    minPrice: 0,
-    maxPrice: 0,
+    minPrice: "",
+    maxPrice: "",
   });
 
   const switchType = (val) => {
@@ -56,13 +56,21 @@ function SearchBar() {
           placeholder="Max Price"
           onChange={handleChange}
         />
-        <Link
-          to={`/list?type=${query.type}&city=${query.city}&minPrice=${query.minPrice}&maxPrice=${query.maxPrice}`}
-        >
-          <button>
-            <img src="/search.png" alt="" />
-          </button>
-        </Link>
+        {" "}
+        {(() => {
+          const params = new URLSearchParams();
+          Object.entries(query).forEach(([k, v]) => {
+            if (v !== "" && v !== null && v !== undefined) params.append(k, v);
+          });
+          const qs = params.toString();
+          return (
+            <Link to={`/list${qs ? `?${qs}` : ""}`}>
+              <button>
+                <img src="/search.png" alt="" />
+              </button>
+            </Link>
+          );
+        })()}
       </form>
     </div>
   );
