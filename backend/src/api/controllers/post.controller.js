@@ -1,10 +1,15 @@
-import prisma from "../../config/prismaConnexion.js";
-import jwt from "jsonwebtoken";
 import {
   getPostsValidation,
   getPostValidation,
+  addPostValidation,
+  deletePostValidation,
 } from "../validations/post.validation.js";
-import { getPostsService, getPostService } from "../services/post.service.js";
+import {
+  getPostsService,
+  getPostService,
+  addPostService,
+  deletePostService,
+} from "../services/post.service.js";
 
 export const getPosts = async (req, res) => {
   const query = req.query;
@@ -44,22 +49,24 @@ export const getPost = async (req, res) => {
 };
 
 export const addPost = async (req, res) => {
-  const body = req.body;
   const tokenUserId = req.userId;
+  const body = req.body;
+
+  // Validation
+  const { error } = addPostValidation(body);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
 
   try {
-    const newPost = await prisma.post.create({
-      data: {
-        ...body.postData,
-        userId: tokenUserId,
-        postDetail: {
-          create: body.postDetail,
-        },
-      },
-    });
+    const newPost = await addPostService(
+      tokenUserId,
+      body.postData,
+      body.postDetail
+    );
     res.status(200).json(newPost);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Failed to create post" });
   }
 };
@@ -74,25 +81,26 @@ export const updatePost = async (req, res) => {
 };
 
 export const deletePost = async (req, res) => {
-  const id = req.params.id;
+  const { id } = req.params;
   const tokenUserId = req.userId;
 
+  // Validation
+  const { error } = deletePostValidation({ id });
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
   try {
-    const post = await prisma.post.findUnique({
-      where: { id },
-    });
-
-    if (post.userId !== tokenUserId) {
-      return res.status(403).json({ message: "Not Authorized!" });
-    }
-
-    await prisma.post.delete({
-      where: { id },
-    });
-
-    res.status(200).json({ message: "Post deleted" });
+    const result = await deletePostService(id, tokenUserId);
+    res.status(200).json(result);
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    if (err.message === "Not Authorized") {
+      return res.status(403).json({ message: err.message });
+    }
+    if (err.message === "Post not found") {
+      return res.status(404).json({ message: err.message });
+    }
     res.status(500).json({ message: "Failed to delete post" });
   }
 };

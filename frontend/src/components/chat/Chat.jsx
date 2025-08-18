@@ -118,7 +118,7 @@ function Chat({ chats }) {
                   textAlign:
                     message.userId === currentUser.id ? "right" : "left",
                 }}
-                key={message.id}
+                key={`${message.id}-${message.createdAt}`}
               >
                 <p>{message.text}</p>
                 <span>{format(message.createdAt)}</span>

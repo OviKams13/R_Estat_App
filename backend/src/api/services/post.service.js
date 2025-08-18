@@ -60,3 +60,39 @@ export const getPostService = async (id, token) => {
 
   return { ...post, isSaved: !!saved };
 };
+
+export const addPostService = async (userId, postData, postDetail) => {
+  // All the logic for creating the post is centralized
+  return await prisma.post.create({
+    data: {
+      ...postData,
+      userId,
+      postDetail: {
+        create: postDetail,
+      },
+    },
+  });
+};
+
+export const deletePostService = async (id, tokenUserId) => {
+  // Check if the post exists
+  const post = await prisma.post.findUnique({
+    where: { id },
+  });
+
+  if (!post) {
+    throw new Error("Post not found");
+  }
+
+  // Check if the connected user is indeed the owner
+  if (post.userId !== tokenUserId) {
+    throw new Error("Not Authorized");
+  }
+
+  // delete post
+  await prisma.post.delete({
+    where: { id },
+  });
+
+  return { message: "Post deleted" };
+};
