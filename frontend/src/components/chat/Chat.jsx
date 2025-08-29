@@ -14,9 +14,9 @@ function Chat({ chats }) {
   const messageEndRef = useRef();
 
   const decrease = useNotificationStore((state) => state.decrease);
-  
+
   useEffect(() => {
-      messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
 
   const handleOpenChat = async (id, receiver) => {
@@ -40,7 +40,12 @@ function Chat({ chats }) {
     if (!text) return;
     try {
       const res = await apiRequest.post("/messages/" + chat.id, { text });
-      setChat((prev) => ({ ...prev, messages: [...prev.messages, res.data] }));
+      setChat((prev) => {
+        if (!prev) return prev;
+        const exists = prev.messages.some((m) => m.id === res.data.id);
+        if (exists) return prev;
+        return { ...prev, messages: [...prev.messages, res.data] };
+      });
       e.target.reset();
       socket.emit("sendMessage", {
         receiverId: chat.receiver.id,
@@ -62,8 +67,13 @@ function Chat({ chats }) {
 
     if (chat && socket) {
       socket.on("getMessage", (data) => {
-        if (chat.id === data.chatId) {
-          setChat((prev) => ({ ...prev, messages: [...prev.messages, data] }));
+        if (chat?.id === data.chatId) {
+          setChat((prev) => {
+            if (!prev) return prev;
+            const exists = prev.messages.some((m) => m.id === data.id);
+            if (exists) return prev;
+            return { ...prev, messages: [...prev.messages, data] };
+          });
           read();
         }
       });
@@ -107,7 +117,7 @@ function Chat({ chats }) {
             </span>
           </div>
           <div className="center">
-          {chat.messages.map((message) => (
+            {chat.messages.map((message) => (
               <div
                 className="chatMessage"
                 style={{
@@ -118,7 +128,7 @@ function Chat({ chats }) {
                   textAlign:
                     message.userId === currentUser.id ? "right" : "left",
                 }}
-                key={`${message.id}-${message.createdAt}`}
+                key={message.id}
               >
                 <p>{message.text}</p>
                 <span>{format(message.createdAt)}</span>
